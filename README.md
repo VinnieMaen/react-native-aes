@@ -1,6 +1,6 @@
 # React Native AES
 
-AES encryption/decryption for react-native
+AES encryption/decryption for react-native Forked because of UTF-8 key and init vector. Code changed to handle UTF-8 instead of hex.
 
 ## Installation
 
