@@ -223,12 +223,12 @@ public class RCTAes extends ReactContextBaseJavaModule {
             return null;
         }
 
-        byte[] key = hexKey.getBytes();
+        byte[] key = (hexKey.getBytes("UTF-8"));
         SecretKey secretKey = new SecretKeySpec(key, KEY_ALGORITHM);
 
         Cipher cipher = Cipher.getInstance(algorithm);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey,
-                hexIv == null ? emptyIvSpec : new IvParameterSpec(hexIv.getBytes()));
+                hexIv == null ? emptyIvSpec : new IvParameterSpec(hexIv.getBytes("UTF-8")));
         byte[] encrypted = cipher.doFinal(text.getBytes("UTF-8"));
         return Base64.encodeToString(encrypted, Base64.NO_WRAP);
     }
@@ -237,15 +237,24 @@ public class RCTAes extends ReactContextBaseJavaModule {
         if (ciphertext == null || ciphertext.length() == 0) {
             return null;
         }
+        System.out.println("ciphertext: ");
+        System.out.println(ciphertext.length());
+        try {
+            byte[] encryted_bytes = Base64.decode(ciphertext, Base64.NO_WRAP);
 
-        byte[] key = kexKey.getBytes();
-        SecretKey secretKey = new SecretKeySpec(key, KEY_ALGORITHM);
+            byte[] key = hexKey.getBytes("UTF-8");
+            SecretKey secretKey = new SecretKeySpec(key, KEY_ALGORITHM);
 
-        Cipher cipher = Cipher.getInstance(algorithm);
-        cipher.init(Cipher.DECRYPT_MODE, secretKey,
-                hexIv == null ? emptyIvSpec : new IvParameterSpec(hexIv.getBytes()));
-        byte[] decrypted = cipher.doFinal(Base64.decode(ciphertext, Base64.NO_WRAP));
-        return new String(decrypted, "UTF-8");
+            Cipher cipher = Cipher.getInstance(algorithm);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey,
+                    hexIv == null ? emptyIvSpec : new IvParameterSpec(hexIv.getBytes("UTF-8")));
+            byte[] decrypted = cipher.doFinal(encryted_bytes);
+            return new String(decrypted, "UTF-8");
+        } catch (Exception e) {
+            // Log the exception for debugging
+
+            e.printStackTrace();
+            throw e; // Rethrow the exception after logging
+        }
     }
-
 }
